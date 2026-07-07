@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const validator = require("validator");
 
 const ScholarSchema = new mongoose.Schema({
 
@@ -28,7 +29,11 @@ const ScholarSchema = new mongoose.Schema({
 
         type:String,
 
-        default:""
+        default:"",
+        validate:{
+            validator:value=>!value || validator.isURL(String(value),{ protocols:["http","https"], require_protocol:true }),
+            message:"Invalid URL format"
+        }
 
     },
 
@@ -68,7 +73,11 @@ const ScholarSchema = new mongoose.Schema({
 
         type:String,
 
-        default:""
+        default:"",
+        validate:{
+            validator:value=>!value || validator.isEmail(String(value)),
+            message:"Invalid email format"
+        }
 
     },
 
@@ -84,7 +93,11 @@ const ScholarSchema = new mongoose.Schema({
 
         type:String,
 
-        default:""
+        default:"",
+        validate:{
+            validator:value=>!value || validator.isURL(String(value),{ protocols:["http","https"], require_protocol:true }),
+            message:"Invalid URL format"
+        }
 
     },
 
@@ -92,7 +105,11 @@ const ScholarSchema = new mongoose.Schema({
 
         type:String,
 
-        default:""
+        default:"",
+        validate:{
+            validator:value=>!value || validator.isURL(String(value),{ protocols:["http","https"], require_protocol:true }),
+            message:"Invalid URL format"
+        }
 
     },
 
@@ -100,7 +117,11 @@ const ScholarSchema = new mongoose.Schema({
 
         type:String,
 
-        default:""
+        default:"",
+        validate:{
+            validator:value=>!value || validator.isURL(String(value),{ protocols:["http","https"], require_protocol:true }),
+            message:"Invalid URL format"
+        }
 
     },
 
@@ -115,5 +136,7 @@ const ScholarSchema = new mongoose.Schema({
 },{
     timestamps:true
 });
+
+ScholarSchema.index({ fullName:1, isActive:1 });
 
 module.exports = mongoose.model("Scholar",ScholarSchema);

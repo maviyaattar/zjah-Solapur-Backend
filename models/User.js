@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const validator = require("validator");
 
 const UserSchema = new mongoose.Schema({
 
@@ -22,7 +23,11 @@ const UserSchema = new mongoose.Schema({
 
         lowercase:true,
 
-        trim:true
+        trim:true,
+        validate:{
+            validator:value=>validator.isEmail(String(value || "")),
+            message:"Invalid email format"
+        }
 
     },
 
@@ -75,5 +80,7 @@ const UserSchema = new mongoose.Schema({
 },{
     timestamps:true
 });
+
+UserSchema.index({ role:1, isActive:1 });
 
 module.exports = mongoose.model("User",UserSchema);

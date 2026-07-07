@@ -2,101 +2,72 @@ const mongoose = require("mongoose");
 
 const ProgramSchema = new mongoose.Schema({
 
-    title:{
-
-        type:String,
-
-        required:true,
-
-        trim:true
-
+    title: {
+        type: String,
+        required: true,
+        trim: true
     },
 
-    description:{
-
-        type:String,
-
-        default:""
-
+    description: {
+        type: String,
+        default: ""
     },
 
     speaker: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Scholar"
-}
+        type: String,
+        default: ""
+    },
 
     venue: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Masjid"
-}
-
-    poster:{
-
-        type:String,
-
-        default:""
-
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Masjid",
+        required: true
     },
 
-    date:{
-
-        type:Date,
-
-        required:true
-
+    poster: {
+        type: String,
+        default: ""
     },
 
-    startTime:{
-
-        type:String,
-
-        required:true
-
+    date: {
+        type: Date,
+        required: true
     },
 
-    endTime:{
-
-        type:String,
-
-        default:""
-
+    startTime: {
+        type: String,
+        required: true
     },
 
-    status:{
+    endTime: {
+        type: String,
+        default: ""
+    },
 
-        type:String,
-
-        enum:[
+    status: {
+        type: String,
+        enum: [
             "UPCOMING",
             "ONGOING",
             "COMPLETED",
             "CANCELLED"
         ],
-
-        default:"UPCOMING"
-
+        default: "UPCOMING"
     },
 
-    createdBy:{
-
-        type:mongoose.Schema.Types.ObjectId,
-
-        ref:"User",
-
-        required:true
-
+    createdBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true
     },
 
-    isActive:{
-
-        type:Boolean,
-
-        default:true
-
+    isActive: {
+        type: Boolean,
+        default: true
     }
 
-},{
-    timestamps:true
+}, {
+    timestamps: true
 });
 
-module.exports = mongoose.model("Program",ProgramSchema);
+module.exports = mongoose.model("Program", ProgramSchema);

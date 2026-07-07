@@ -20,23 +20,15 @@ const ProgramSchema = new mongoose.Schema({
 
     },
 
-    speaker:{
+    speaker: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Scholar"
+}
 
-        type:String,
-
-        default:""
-
-    },
-
-    venue:{
-
-        type:mongoose.Schema.Types.ObjectId,
-
-        ref:"Masjid",
-
-        required:true
-
-    },
+    venue: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Masjid"
+}
 
     poster:{
 

@@ -180,6 +180,517 @@ function allow(...roles){
 
 }
 
+// ==========================================================
+// AUTH APIs
+// ==========================================================
+
+
+// First Super Admin Setup
+app.post("/setup", async (req, res) => {
+
+    try {
+
+        const { name, email, password } = req.body;
+
+        if (!name || !email || !password)
+            return failed(res, "All Fields Required");
+
+        const alreadyExists = await User.findOne({
+            role: "SUPER_ADMIN"
+        });
+
+        if (alreadyExists)
+            return failed(res, "Super Admin Already Exists");
+
+        const hash = await bcrypt.hash(password, 10);
+
+        const user = await User.create({
+
+            name,
+
+            email,
+
+            password: hash,
+
+            role: "SUPER_ADMIN"
+
+        });
+
+        success(
+
+            res,
+
+            "Super Admin Created",
+
+            {
+
+                id: user._id,
+
+                email: user.email
+
+            },
+
+            201
+
+        );
+
+    }
+
+    catch (err) {
+
+        failed(res, err.message);
+
+    }
+
+});
+
+
+
+
+// Login
+app.post("/login", async (req, res) => {
+
+    try {
+
+        const { email, password } = req.body;
+
+        if (!email || !password)
+            return failed(res, "Email & Password Required");
+
+        const user = await User.findOne({
+
+            email
+
+        });
+
+        if (!user)
+            return failed(res, "Invalid Credentials", 401);
+
+        if (!user.isActive)
+            return failed(res, "Account Disabled", 403);
+
+        const match = await bcrypt.compare(
+
+            password,
+
+            user.password
+
+        );
+
+        if (!match)
+            return failed(res, "Invalid Credentials", 401);
+
+        const token = generateToken(user);
+
+        success(
+
+            res,
+
+            "Login Successful",
+
+            {
+
+                token,
+
+                user: {
+
+                    id: user._id,
+
+                    name: user.name,
+
+                    email: user.email,
+
+                    role: user.role
+
+                }
+
+            }
+
+        );
+
+    }
+
+    catch (err) {
+
+        failed(res, err.message);
+
+    }
+
+});
+
+
+
+
+// Current User
+app.get("/me", auth, async (req, res) => {
+
+    try {
+
+        const user = await User.findById(req.user.id)
+
+        .select("-password");
+
+        if (!user)
+            return failed(res, "User Not Found", 404);
+
+        success(res, "Profile", user);
+
+    }
+
+    catch (err) {
+
+        failed(res, err.message);
+
+    }
+
+});
+
+
+
+
+// Change Password
+app.put("/change-password", auth, async (req, res) => {
+
+    try {
+
+        const {
+
+            currentPassword,
+
+            newPassword
+
+        } = req.body;
+
+        if (!currentPassword || !newPassword)
+            return failed(res, "All Fields Required");
+
+        const user = await User.findById(req.user.id);
+
+        const match = await bcrypt.compare(
+
+            currentPassword,
+
+            user.password
+
+        );
+
+        if (!match)
+            return failed(res, "Current Password Incorrect");
+
+        user.password = await bcrypt.hash(
+
+            newPassword,
+
+            10
+
+        );
+
+        await user.save();
+
+        success(res, "Password Updated");
+
+    }
+
+    catch (err) {
+
+        failed(res, err.message);
+
+    }
+
+});
+
+
+
+
+// ==========================================================
+// ADMIN MANAGEMENT
+// ==========================================================
+
+
+// Create Program Admin
+app.post(
+"/admins/program",
+auth,
+allow("SUPER_ADMIN"),
+async(req,res)=>{
+
+try{
+
+const{
+
+name,
+email,
+password
+
+}=req.body;
+
+if(!name||!email||!password)
+return failed(res,"All Fields Required");
+
+const exists=await User.findOne({email});
+
+if(exists)
+return failed(res,"Email Already Exists");
+
+const hash=await bcrypt.hash(password,10);
+
+const admin=await User.create({
+
+name,
+email,
+password:hash,
+role:"PROGRAM_ADMIN"
+
+});
+
+success(
+res,
+"Program Admin Created",
+admin,
+201
+);
+
+}
+
+catch(err){
+
+failed(res,err.message);
+
+}
+
+});
+
+
+
+
+// Create Masjid Admin
+app.post(
+"/admins/masjid",
+auth,
+allow("SUPER_ADMIN"),
+async(req,res)=>{
+
+try{
+
+const{
+
+name,
+email,
+password,
+assignedMasjid
+
+}=req.body;
+
+if(
+!name||
+!email||
+!password
+)
+return failed(res,"All Fields Required");
+
+const exists=await User.findOne({email});
+
+if(exists)
+return failed(res,"Email Already Exists");
+
+const hash=await bcrypt.hash(password,10);
+
+const admin=await User.create({
+
+name,
+email,
+password:hash,
+role:"MASJID_ADMIN",
+assignedMasjid
+
+});
+
+success(
+res,
+"Masjid Admin Created",
+admin,
+201
+);
+
+}
+
+catch(err){
+
+failed(res,err.message);
+
+}
+
+});
+
+
+// Create Scholar
+app.post(
+"/admins/scholar",
+auth,
+allow("SUPER_ADMIN"),
+async(req,res)=>{
+
+try{
+
+const{
+
+name,
+email,
+password
+
+}=req.body;
+
+if(
+!name||
+!email||
+!password
+)
+return failed(res,"All Fields Required");
+
+const exists=await User.findOne({email});
+
+if(exists)
+return failed(res,"Email Already Exists");
+
+const hash=await bcrypt.hash(password,10);
+
+const scholar=await User.create({
+
+name,
+email,
+password:hash,
+role:"SCHOLAR"
+
+});
+
+success(
+res,
+"Scholar Created",
+scholar,
+201
+);
+
+}
+
+catch(err){
+
+failed(res,err.message);
+
+}
+
+});
+
+
+
+
+// Get All Admins
+app.get(
+"/admins",
+auth,
+allow("SUPER_ADMIN"),
+async(req,res)=>{
+
+try{
+
+const admins=await User.find({
+
+role:{
+$ne:"SUPER_ADMIN"
+}
+
+}).select("-password");
+
+success(
+res,
+"Admins List",
+admins
+);
+
+}
+
+catch(err){
+
+failed(res,err.message);
+
+}
+
+});
+
+
+
+
+// Enable / Disable Admin
+app.patch(
+"/admins/:id/status",
+auth,
+allow("SUPER_ADMIN"),
+async(req,res)=>{
+
+try{
+
+const admin=await User.findById(req.params.id);
+
+if(!admin)
+return failed(res,"Admin Not Found",404);
+
+admin.isActive=!admin.isActive;
+
+await admin.save();
+
+success(
+res,
+"Status Updated",
+admin
+);
+
+}
+
+catch(err){
+
+failed(res,err.message);
+
+}
+
+});
+
+
+
+
+// Delete Admin
+app.delete(
+"/admins/:id",
+auth,
+allow("SUPER_ADMIN"),
+async(req,res)=>{
+
+try{
+
+const admin=await User.findById(req.params.id);
+
+if(!admin)
+return failed(res,"Admin Not Found",404);
+
+if(admin.role==="SUPER_ADMIN")
+return failed(res,"Cannot Delete Super Admin");
+
+await admin.deleteOne();
+
+success(
+res,
+"Admin Deleted"
+);
+
+}
+
+catch(err){
+
+failed(res,err.message);
+
+}
+
+});
+
+
 // ==========================
 // HEALTH CHECK
 // ==========================
@@ -205,6 +716,7 @@ app.get("/",(req,res)=>{
     );
 
 });
+
 
 // ==========================
 // 404

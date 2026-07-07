@@ -11,8 +11,15 @@
   "dependencies": {
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
+    "dotenv": "^17.4.2",
     "express": "^5.1.0",
+    "express-rate-limit": "^8.5.2",
+    "helmet": "^8.2.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.18.0"
+    "mongo-sanitize": "^1.1.0",
+    "mongoose": "^8.18.0",
+    "pino": "^10.3.1",
+    "pino-http": "^11.0.0",
+    "validator": "^13.15.35"
   }
 }

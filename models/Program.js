@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const validator = require("validator");
 
 const ProgramSchema = new mongoose.Schema({
 
@@ -70,7 +71,11 @@ const ProgramSchema = new mongoose.Schema({
 
     googleMapLink:{
         type:String,
-        default:""
+        default:"",
+        validate:{
+            validator:value=>!value || validator.isURL(String(value),{ protocols:["http","https"], require_protocol:true }),
+            message:"Invalid URL format"
+        }
     },
 
     startDate:{
@@ -110,7 +115,11 @@ const ProgramSchema = new mongoose.Schema({
 
     registrationLink:{
         type:String,
-        default:""
+        default:"",
+        validate:{
+            validator:value=>!value || validator.isURL(String(value),{ protocols:["http","https"], require_protocol:true }),
+            message:"Invalid URL format"
+        }
     },
 
     registrationDeadline:{
@@ -154,5 +163,8 @@ const ProgramSchema = new mongoose.Schema({
 },{
     timestamps:true
 });
+
+ProgramSchema.index({ isActive:1, status:1, startDate:1 });
+ProgramSchema.index({ createdBy:1, createdAt:-1 });
 
 module.exports = mongoose.model("Program",ProgramSchema);

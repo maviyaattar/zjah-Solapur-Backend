@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const validator = require("validator");
 
 const LibrarySchema = new mongoose.Schema({
 
@@ -40,7 +41,11 @@ const LibrarySchema = new mongoose.Schema({
 
     pdf:{
         type:String,
-        required:true
+        required:true,
+        validate:{
+            validator:value=>validator.isURL(String(value),{ protocols:["http","https"], require_protocol:true }),
+            message:"Invalid PDF URL"
+        }
     },
 
     scholar:{
@@ -62,5 +67,8 @@ const LibrarySchema = new mongoose.Schema({
 },{
     timestamps:true
 });
+
+LibrarySchema.index({ scholar:1, createdAt:-1 });
+LibrarySchema.index({ category:1, language:1, isActive:1 });
 
 module.exports = mongoose.model("Library", LibrarySchema);

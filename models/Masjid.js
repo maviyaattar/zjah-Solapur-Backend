@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const validator = require("validator");
 
 const MasjidSchema = new mongoose.Schema({
 
@@ -42,7 +43,11 @@ const MasjidSchema = new mongoose.Schema({
 
     googleMapLink:{
         type:String,
-        default:""
+        default:"",
+        validate:{
+            validator:value=>!value || validator.isURL(String(value),{ protocols:["http","https"], require_protocol:true }),
+            message:"Invalid URL format"
+        }
     },
 
     facilities:[{
@@ -108,5 +113,7 @@ const MasjidSchema = new mongoose.Schema({
 },{
     timestamps:true
 });
+
+MasjidSchema.index({ name:1, area:1 },{ unique:true });
 
 module.exports = mongoose.model("Masjid", MasjidSchema);

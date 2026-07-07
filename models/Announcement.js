@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const validator = require("validator");
 
 const AnnouncementSchema = new mongoose.Schema({
 
@@ -49,7 +50,11 @@ const AnnouncementSchema = new mongoose.Schema({
 
     googleMapLink:{
         type:String,
-        default:""
+        default:"",
+        validate:{
+            validator:value=>!value || validator.isURL(String(value),{ protocols:["http","https"], require_protocol:true }),
+            message:"Invalid URL format"
+        }
     },
 
     masjid:{
@@ -97,5 +102,8 @@ const AnnouncementSchema = new mongoose.Schema({
 },{
     timestamps:true
 });
+
+AnnouncementSchema.index({ isActive:1, category:1, pinned:-1, createdAt:-1 });
+AnnouncementSchema.index({ masjid:1, status:1, date:1 });
 
 module.exports = mongoose.model("Announcement", AnnouncementSchema);

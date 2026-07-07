@@ -2,72 +2,157 @@ const mongoose = require("mongoose");
 
 const ProgramSchema = new mongoose.Schema({
 
-    title: {
-        type: String,
-        required: true,
-        trim: true
+    title:{
+        type:String,
+        required:true,
+        trim:true
     },
 
-    description: {
-        type: String,
-        default: ""
+    banner:{
+        type:String,
+        default:""
     },
 
-    speaker: {
-        type: String,
-        default: ""
+    type:{
+        type:String,
+        enum:[
+            "BAYAAN",
+            "DARS",
+            "JALSA",
+            "CONFERENCE",
+            "WORKSHOP",
+            "SEMINAR",
+            "MEETING",
+            "OTHER"
+        ],
+        required:true
     },
 
-    venue: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Masjid",
-        required: true
+    description:{
+        type:String,
+        default:""
     },
 
-    poster: {
-        type: String,
-        default: ""
+    speakers:[{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Scholar"
+    }],
+
+    guestSpeakers:[{
+        type:String,
+        trim:true
+    }],
+
+    venueType:{
+        type:String,
+        enum:[
+            "MASJID",
+            "CUSTOM"
+        ],
+        default:"MASJID"
     },
 
-    date: {
-        type: Date,
-        required: true
+    masjid:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Masjid",
+        default:null
     },
 
-    startTime: {
-        type: String,
-        required: true
+    customVenueName:{
+        type:String,
+        default:""
     },
 
-    endTime: {
-        type: String,
-        default: ""
+    customAddress:{
+        type:String,
+        default:""
     },
 
-    status: {
-        type: String,
-        enum: [
+    googleMapLink:{
+        type:String,
+        default:""
+    },
+
+    startDate:{
+        type:Date,
+        required:true
+    },
+
+    endDate:{
+        type:Date,
+        required:true
+    },
+
+    startTime:{
+        type:String,
+        required:true
+    },
+
+    endTime:{
+        type:String,
+        default:""
+    },
+
+    audience:{
+        type:String,
+        enum:[
+            "GENTS",
+            "LADIES",
+            "BOTH"
+        ],
+        default:"BOTH"
+    },
+
+    registrationRequired:{
+        type:Boolean,
+        default:false
+    },
+
+    registrationLink:{
+        type:String,
+        default:""
+    },
+
+    registrationDeadline:{
+        type:Date,
+        default:null
+    },
+
+    maxParticipants:{
+        type:Number,
+        default:null
+    },
+
+    featured:{
+        type:Boolean,
+        default:false
+    },
+
+    status:{
+        type:String,
+        enum:[
+            "DRAFT",
             "UPCOMING",
             "ONGOING",
             "COMPLETED",
             "CANCELLED"
         ],
-        default: "UPCOMING"
+        default:"UPCOMING"
     },
 
-    createdBy: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true
+    createdBy:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"User",
+        required:true
     },
 
-    isActive: {
-        type: Boolean,
-        default: true
+    isActive:{
+        type:Boolean,
+        default:true
     }
 
-}, {
-    timestamps: true
+},{
+    timestamps:true
 });
 
-module.exports = mongoose.model("Program", ProgramSchema);
+module.exports = mongoose.model("Program",ProgramSchema);

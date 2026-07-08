@@ -3042,6 +3042,8 @@ handleError(res,err);
 
 });
 
+
+
 // ==========================================================
 // UPDATE ANNOUNCEMENT
 // ==========================================================
@@ -3068,21 +3070,9 @@ res,
 404
 );
 
-if(req.user.role==="PROGRAM_ADMIN" && String(announcement.createdBy)!==String(req.user.id)){
-return failed(res,"You can only update your own announcements",403);
-}
-
-if(req.user.role==="MASJID_ADMIN"){
-const adminUser = await User.findById(req.user.id).select("assignedMasjid");
-if(!adminUser?.assignedMasjid){
-return failed(res,"No masjid assigned to this admin",403);
-}
-
-const targetMasjid = masjid ?? announcement.masjid;
-if(!targetMasjid || String(targetMasjid)!==String(adminUser.assignedMasjid)){
-return failed(res,"MASJID_ADMIN can only manage announcements for assigned masjid",403);
-}
-}
+// ==========================
+// Request Body
+// ==========================
 
 const{
 
@@ -3109,6 +3099,97 @@ status,
 isActive
 
 }=req.body;
+
+
+// PROGRAM_ADMIN Ownership
+
+if(
+req.user.role==="PROGRAM_ADMIN" &&
+String(announcement.createdBy)!==String(req.user.id)
+){
+
+return failed(
+res,
+"You can only update your own announcements",
+403
+);
+
+}
+
+
+// MASJID_ADMIN Permission
+
+if(req.user.role==="MASJID_ADMIN"){
+
+const adminUser=await User.findById(req.user.id)
+
+.select("assignedMasjid");
+
+if(!adminUser?.assignedMasjid){
+
+return failed(
+res,
+"No masjid assigned to this admin",
+403
+);
+
+}
+
+const targetMasjid=masjid ?? announcement.masjid;
+
+if(
+!targetMasjid ||
+String(targetMasjid)!==
+String(adminUser.assignedMasjid)
+){
+
+return failed(
+res,
+"MASJID_ADMIN can only manage announcements for assigned masjid",
+403
+);
+
+}
+
+}
+
+
+// Validations
+
+if(
+masjid &&
+!assertValidObjectId(
+res,
+masjid,
+"Masjid ID"
+)
+)
+return;
+
+if(
+!isValidDate(date) ||
+!isValidDate(expiryDate)
+)
+return failed(
+res,
+"Invalid date value"
+);
+
+if(
+!isValidTime(time)
+)
+return failed(
+res,
+"Invalid time value. Use HH:mm"
+);
+
+if(
+!isValidUrl(googleMapLink)
+)
+return failed(
+res,
+"Invalid URL format"
+);
 
 
 // Update
@@ -3149,21 +3230,11 @@ pinned ?? announcement.pinned;
 announcement.expiryDate=
 expiryDate ?? announcement.expiryDate;
 
-if(!isValidDate(announcement.date) || !isValidDate(announcement.expiryDate))
-return failed(res,"Invalid date value");
-
-if(!isValidTime(announcement.time))
-return failed(res,"Invalid time value. Use HH:mm");
-
-if(!isValidUrl(announcement.googleMapLink))
-return failed(res,"Invalid URL format");
-
 announcement.status=
 status ?? announcement.status;
 
 announcement.isActive=
 isActive ?? announcement.isActive;
-
 
 await announcement.save();
 
@@ -3182,6 +3253,12 @@ handleError(res,err);
 }
 
 });
+
+
+
+
+
+
 
 // ==========================================================
 // DELETE ANNOUNCEMENT
